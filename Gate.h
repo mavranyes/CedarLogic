@@ -7,9 +7,17 @@ class Wire;
 
 class Gate {
     public:
-        
-    private:
+        string type;
+        int delay;
         Wire *in1, *in2;
         Wire *outwire;
+
+        Gate::Gate (string type, int delay, Wire *in1, Wire in2, Wire outwire);
+        int getDelay()const;
+        Wire* getInput(int num)const;
+        Wire* getOutput()const;
+        string evaluate()const;//Runs gate logic
+
+
 
 };
