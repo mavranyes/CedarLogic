@@ -6,7 +6,7 @@ class Gate;
 
 class Wire {
     public:
-       string type; 
+       string name; 
     private:
 
         vector<Gate *> drives;
