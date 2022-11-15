@@ -7,12 +7,6 @@ class Gate;
 
 class Wire {
     public:
-        int value;
-        string name;
-        vector<Gate *> drives;
-        int index;
-        vector<string> history;
-        
         Wire::Wire();
         void setValue(int value);
         void setHistory(vector<string> history);
@@ -23,5 +17,12 @@ class Wire {
         int getIndex()const;
         vector getHistory()const;
         void printHistory()const;
+
+    private:
+        int value;
+        string name;
+        vector<Gate *> drives;
+        int index;
+        vector<string> history;
 
 };
