@@ -8,15 +8,15 @@ class Gate;
 class Wire {
     public:
         Wire::Wire();
-        void setValue(int value);
-        void setHistory(vector<string> history);
-        void setDrives(vector<Gate *> drives);
+        void setValue(int val);
+        void setHistory(vector<string> his);
+        void setDrives(vector<Gate *> drivs);
         int getValue()const;
         int getName()const;
-        vector getDrives()const;
+        vector<Gate *> getDrives()const;
         int getIndex()const;
-        vector getHistory()const;
-        void printHistory()const;
+        vector<string> getHistory()const;
+        void printHistory();
 
     private:
         int value;

@@ -2,28 +2,32 @@ using namespace std;
 
 #include "Wire.h"
 #include "Gate.h"
+#include <iostream>
 
-Wire::Wire(){
+Wire::Wire() {
+    value = 0;
+    name = "";
+    index = 0;
+    //Add drives and history
+}
+
+void Wire::setValue(int val) {
+    this->value = val;
+}
+
+void Wire::setHistory(vector<string> his) {
 
 }
 
-void Wire::setValue(int value) {
-
-}
-
-void Wire::setHistory(vector<string> history) {
-
-}
-
-void Wire::setDrives(vector<Gate *> drives) {
-
+void Wire::setDrives(vector<Gate *> drvs) {
+    
 }
 
 int Wire::getValue() const {
     return value;
 }
 
-vector Wire::getDrives() const {
+vector<Gate *> Wire::getDrives() const {
     return drives;
 }
 
@@ -31,12 +35,12 @@ int Wire::getIndex() const {
     return index;
 }
 
-vector Wire::getHistory() const {
+vector<string> Wire::getHistory() const {
     return history;
 }
 
-void Wire::printHistory() const {
-    for (int i = 0; i < history.) {
-
+void Wire::printHistory() {
+    for (vector<string>::iterator i = history.begin(); i != history.end(); ++i) {
+        cout << *i << endl;
     }
 }
