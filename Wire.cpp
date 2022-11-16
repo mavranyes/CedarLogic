@@ -8,7 +8,6 @@ Wire::Wire() {
     value = 0;
     name = "";
     index = 0;
-    //Add drives and history
 }
 
 void Wire::setValue(int val) {
@@ -16,11 +15,15 @@ void Wire::setValue(int val) {
 }
 
 void Wire::setHistory(vector<string> his) {
-
+    for (vector<string>::iterator i = his.begin(); i != his.end(); ++i) {
+        history.push_back(*i);
+    }
 }
 
 void Wire::setDrives(vector<Gate *> drvs) {
-    
+    for (vector<Gate *>::iterator i = drvs.begin(); i != drvs.end(); ++i) {
+        drives.push_back(*i);
+    }
 }
 
 int Wire::getValue() const {
