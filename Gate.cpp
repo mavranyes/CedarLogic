@@ -1,19 +1,14 @@
+using namespace std;
 
- #include "Gate.h"
- #include "Wire.h"
- #include "iostream"
- #define X 2
+#include "Gate.h"
+#include "Wire.h"
+#define X 2
 
-Gate::Gate (string type, int delay, Wire *in1, Wire *in2, Wire outwire) {
-    cin >> type;
-    type = stoi(type); 
-    cin >> delay;
-    in1 = ;//Need to connect to the pointer
-    in2 = ;//Need to connect to the pointer
-    cin >> outwire;//Need to connect to the pointer
+Gate::Gate() {
+
+
+
 }
-
-//Gate::Gate (GateType type, int delay, Wire *in1, Wire *in2, Wire *outwire) {}
 
 void evaluate(){
     int a=in1->getValue();
@@ -95,6 +90,5 @@ int Gate::Nor(int a, int b){
 }
 
 int main() {
-
 
 };
