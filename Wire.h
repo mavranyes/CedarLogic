@@ -1,3 +1,4 @@
+//Code by Micah Vranyes and Alben Augestine
 using namespace std;
 
 class Gate;
@@ -7,7 +8,7 @@ class Gate;
 
 class Wire {
     public:
-        Wire::Wire();
+        Wire(int value, string name, int index);
         void setValue(int val);
         void setHistory(vector<string> his);
         void setDrives(vector<Gate *> drivs);

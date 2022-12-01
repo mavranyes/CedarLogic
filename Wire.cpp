@@ -1,13 +1,12 @@
+//Code by Micah Vranyes and Alben Augestine
 using namespace std;
 
 #include "Wire.h"
 #include "Gate.h"
 #include <iostream>
 
-Wire::Wire() {
-    value = 0;
-    name = "";
-    index = 0;
+Wire::Wire(int value = 0, string name = "", int index = 0) {
+
 }
 
 void Wire::setValue(int val) {
@@ -42,8 +41,8 @@ vector<string> Wire::getHistory() const {
     return history;
 }
 
-void Wire::printHistory() {
-    for (vector<string>::iterator i = history.begin(); i != history.end(); ++i) {
+void Wire::printHistory() { //Needs to be const
+    for (vector<string>::iterator i = history.begin(); i != history.end(); ++i) {//Not able to convert from constant to non
         cout << *i << endl;
     }
 }
