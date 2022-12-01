@@ -28,3 +28,4 @@ class Gate {
         int Xnor(int, int);
         int Nor(int, int);
 };
+

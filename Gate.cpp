@@ -91,5 +91,4 @@ int Gate::Nor(int a, int b){
 
 int main() {
 
-
 };
