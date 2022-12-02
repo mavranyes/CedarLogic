@@ -5,6 +5,7 @@ using namespace std;
 #include <vector>
 #include "Gate.h"
 #include "Wire.h"
+#include <sstream>
 #define X 2
 
 Gate::Gate(GateType type, int delay, Wire *in1, Wire *in2, Wire *outwire) {
@@ -88,6 +89,56 @@ int Gate::Xnor(int a, int b){
 
 int Gate::Nor(int a, int b){
     return Not(Or(a, b));
+}
+
+class EventCompare {
+    bool operator() (const Event* lhs, const Event* rhs) {
+        return (lhs->time < rhs->time);
+    }
+}
+
+class Circuit {
+    private:
+    vector<Wire*> wireArray;
+    priority_queue<Event*, vector<Event*>, EventCompare> events;
+    map<char, int> inputs;
+    map<char, int> outputs;
+    public:
+    Circuit(ifstream cfin, ifstream vfin) {
+        string rawline;
+
+        while (!cfin.eof()) {
+            getline(cfin, line, '\n');
+            stringstream line(rawline);
+            string op;
+            line >> op;
+            if (op == "INPUT" || op == "OUTPUT") {
+                char c;
+                int idx;
+                if (op == "INPUT") {
+                    inputs.insert(make_pair(c, idx));
+                } else {
+                    outputs.insert(make_pair(c, idx));
+                }
+                if (idx > wireArray.size() || wireArray[idx] == nullptr) {
+                    Wire* newWire = new Wire();
+                    if (idx >= wireArray.size()) {
+                        wireArray.resize(idx+1, nullptr);
+                    }
+                    wireArray[idx] = newWire;
+                }
+            } else {
+                
+            }
+        }
+    }
+
+}
+class Event{
+    Wire* wire;
+    int value;
+    int time;
+    void eval();
 }
 
 int main() {
