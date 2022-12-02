@@ -5,8 +5,10 @@ using namespace std;
 #include "Gate.h"
 #include <iostream>
 
-Wire::Wire(int value = 0, string name = "", int index = 0) {
-
+Wire::Wire(int inVal = 0, string inName = "", int inIndex = 0) {
+    value = inVal;
+    name = inName;
+    index = inIndex;
 }
 
 void Wire::setValue(int val) {

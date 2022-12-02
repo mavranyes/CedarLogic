@@ -92,50 +92,67 @@ int Gate::Nor(int a, int b){
 
 int main() {
     vector<Wire *> wires;
+    vector<Gate *> gates;
     string inType;
-    string inDelay;
+    char* inDelay;
     string in1;
     string in2;
     string out;
+    string name;
+    string value;
 
     int i = 0;
     cin >> inType;
     while (!cin.eof()) {
-        //Figure out which enum inType coresponds to
-        cin >> inDelay; //Store delay
-        cin >> in1;
-        if (contains(in1, wires)) {//Check if the first input wire exits and create and connect one if it doesn't
-            Wire firstWire(0, in1, 0);
-            wires.push_back(firstWire);
-        }
-        else {//Connect one to the gate if it does exist
+        if (inType == "INPUT") {//Checks if wire
+            cin >> name;
+            if (wires.size() <= stoi(name)) {
+                
+            }
+            else {
+                
+            }
+        } else {
+            if (inType == "AND") {//Checks if it's a gate
+                //Figure out which enum inType coresponds to
+                cin >> inDelay; //Store delay
+                int delay = 0;
+                scanf(inDelay,"%f", &delay);
+                cin >> in1;
+                if (contains(in1, wires)) {//Check if the first input wire exits and create and connect one if it doesn't
+                    Wire firstWire(0, in1, 0);
+                    wires.push_back(firstWire);
+                }
+                else {//Connect one to the gate if it does exist
 
-        }
-        cin >> in2;
-        if (contains(in2, wires)) {//Check if the second input wire exits and create and connect one if it doesn't
+                }
+                cin >> in2;
+                if (contains(in2, wires)) {//Check if the second input wire exits and create and connect one if it doesn't
 
-        }
-        else {//Connect one to the gate if it does exist
+                }
+                else {//Connect one to the gate if it does exist
 
-        }
-        cin >> out;
-        if (contains(out, wires)) {//Check if the output wire exits and create and connect one if it doesn't
+                }
+                cin >> out;
+                if (contains(out, wires)) {//Check if the output wire exits and create and connect one if it doesn't
 
-        }
-        else {//Connect one to the gate if it does exist
+                }
+                else {//Connect one to the gate if it does exist
 
+                }
+                gates.push_back(new Gate(stoi(inType), delay, ));//Creates the gate with all input information
+                cout << "Gate " << i << ": " << inType << endl;
+                i++;
+            }
         }
-        Gate test(stoi(inType), inDelay, );//Creates the gate with all input information
-        cout << "Gate " << i << ": " << inType << endl;
-        i++;
     }
 };
 
-bool contains(string inName, vector<Wire *> vec) {//Checks if a wire already exits with the inputed name
+/*bool contains(string inName, vector<Wire *> vec) {//Checks if a wire already exits with the inputed name
     for (vector<string>::iterator i = vec.begin(); i != vec.end(); ++i) {//Not able to convert from constant to non
         if (*i->name == inName) {
             return true;
         }
     }
     return false;
-}
+}*/
