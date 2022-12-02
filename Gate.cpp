@@ -106,13 +106,10 @@ int main() {
     while (!cin.eof()) {
         if (inType == "INPUT") {//Checks if wire
             cin >> name;
-            if (wires.size() <= stoi(name)) {
-                
-            }
-            else {
-                
-            }
-        } else {
+            cin >> value;
+            createWire(name, stoi(value), wires);
+        } 
+        else {
             if (inType == "AND") {//Checks if it's a gate
                 //Figure out which enum inType coresponds to
                 cin >> inDelay; //Store delay
@@ -148,11 +145,15 @@ int main() {
     }
 };
 
-/*bool contains(string inName, vector<Wire *> vec) {//Checks if a wire already exits with the inputed name
-    for (vector<string>::iterator i = vec.begin(); i != vec.end(); ++i) {//Not able to convert from constant to non
-        if (*i->name == inName) {
-            return true;
+
+void createWire(string name, int value, vector<Wire *> wires) {
+    if (wires.size() >= stoi(name)) {//Checks if vector long enough
+        if (wires.at(stoi(name)) == nullptr) {
+            wires.at(stoi(name)) == new Wire(value, name ,0);
         }
     }
-    return false;
-}*/
+    else {
+        wires.resize(stoi(name));
+        wires.at(stoi(name)) == new Wire(value, name ,0);
+    }
+}
