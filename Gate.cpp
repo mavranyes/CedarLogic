@@ -136,7 +136,7 @@ class Circuit {
                 } else {
                     outputs.insert(pair<string, int>(s, idx));
                 }
-                if (idx > wireVector.size() || wireVector.at(idx) == nullptr) {
+                if (idx >= wireVector.size() || wireVector.at(idx) == nullptr) {
                     //Wire* newWire = new Wire(); //Why not just add directly at the end?
                     if (idx >= wireVector.size()) {
                         wireVector.resize(idx+1, nullptr);
@@ -145,11 +145,11 @@ class Circuit {
                 }
             }
             else {
-                
+                //Pt. 1
                 string GateT;
                 line >> GateT;
-                int gateType = hardCodeGateSolve(GateT);//Returns gate type as int
-                
+                GateType gateType = hardCodeGateSolve(GateT);//Returns gate type as int
+                //Pt. 2
                 string inDelay;
                 int delay = 0;
                 line >> delay;//This should automatically parse the delay
@@ -158,30 +158,30 @@ class Circuit {
                 // Remove the ns and store the int value in delay
                 //delay= stoul(inDelay.substr(0, (inDelay.length() - 2)));
 
-                line >> Num;
-
-                int NUM[3]={0};
-
-                for (int i=1; i<=3; i++){
-                    NUM[i]=Num;
-                    if (Num >= wireVector.size()){
-                        wireVector.resize(Num+1, nullptr);
+                //Pt. 3-5
+                int idx;
+                Wire* wireArray[3] = {nullptr};
+                for (int i = 0; i < 3; i++){
+                    line >> idx;
+                    if (idx >= wireVector.size() || wireVector.at(idx) == nullptr) {
+                        if (idx >= wireVector.size()) {
+                            wireVector.resize(idx+1, nullptr);
+                        }
+                        wireVector.at(idx) = new Wire(0,"",idx);
+                        wireArray[i] = wireVector.at(idx);
                     }
-                    if (wireVector[Num] == nullptr){
-                        Wire* newWire = new Wire();
-                        wireVector[Num] = newWire;
-                    }
-
-                    if ((GateT=="NOT") && (i==2)) {
+                    if ((gateType == NOT) && (i == 2)) {
                         break;
                     }
-                    line>>Num;
                 }
-                gateVector.push_back(new Gate(gateType, delay, ));
+
+                //Takes all pieces and adds to vector here
+                gateVector.push_back(new Gate(gateType, delay, wireArray[0], wireArray[1], wireArray[2]));
             }
         }
 
     }
+    //Parsing vector file
     /*
     while (!vfin.eof()) {
 
@@ -196,36 +196,36 @@ int main() {
     // (4) Print out
 };
 
-int hardCodeGateSolve(string gateString) {
+GateType hardCodeGateSolve(string gateString) {
     if (gateString == "NOT") {
-        return 0;
+        return NOT;
     }
     else {
         if (gateString == "AND") {
-            return 1;
+            return AND;
         }
         else{
             if (gateString == "OR") {
-                return 2;
+                return OR;
             }
             else {
                 if (gateString == "XOR") {
-                    return 3;
+                    return XOR;
                 }
                 else {
                     if (gateString == "NAND") {
-                        return 4;
+                        return NAND;
                     }
                     else {
                         if (gateString == "NOR") {
-                            return 5;
+                            return NOR;
                         }
                         else {
                             if (gateString == "XNOR") {
-                                return 6;
+                                return XNOR;
                             }
                             else {
-                                return -1;
+                                return AND;//This is dumb
                             }
                         }
                     }
@@ -235,7 +235,7 @@ int hardCodeGateSolve(string gateString) {
     }
 }
 
-void createWire(string name, int value, vector<Wire *> wires) {
+/*void createWire(string name, int value, vector<Wire *> wires) {
     if (wires.size() >= stoi(name)) {//Checks if vector long enough
         if (wires.at(stoi(name)) == nullptr) {
             wires.at(stoi(name)) == new Wire(value, name ,0);
@@ -245,57 +245,4 @@ void createWire(string name, int value, vector<Wire *> wires) {
         wires.resize(stoi(name));
         wires.at(stoi(name)) == new Wire(value, name ,0);
     }
-}
-
-/*vector<Wire *> wires;
-    vector<Gate *> gates;
-    string inType;
-    char* inDelay;
-    string in1;
-    string in2;
-    string out;
-    string name;
-    string value;
-
-    int i = 0;
-    cin >> inType;
-    while (!cin.eof()) {
-        if (inType == "INPUT") {//Checks if wire
-            cin >> name;
-            cin >> value;
-            createWire(name, stoi(value), wires);
-        } 
-        else {
-            if (inType == "AND") {//Checks if it's a gate
-                //Figure out which enum inType coresponds to
-                cin >> inDelay; //Store delay
-                int delay = 0;
-                scanf(inDelay,"%f", &delay);
-                cin >> in1;
-                if (contains(in1, wires)) {//Check if the first input wire exits and create and connect one if it doesn't
-                    Wire firstWire(0, in1, 0);
-                    wires.push_back(firstWire);
-                }
-                else {//Connect one to the gate if it does exist
-
-                }
-                cin >> in2;
-                if (contains(in2, wires)) {//Check if the second input wire exits and create and connect one if it doesn't
-
-                }
-                else {//Connect one to the gate if it does exist
-
-                }
-                cin >> out;
-                if (contains(out, wires)) {//Check if the output wire exits and create and connect one if it doesn't
-
-                }
-                else {//Connect one to the gate if it does exist
-
-                }
-                gates.push_back(new Gate(stoi(inType), delay, ));//Creates the gate with all input information
-                cout << "Gate " << i << ": " << inType << endl;
-                i++;
-            }
-        }
-    }*/
+}*/
