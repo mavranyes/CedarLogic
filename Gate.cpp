@@ -1,16 +1,18 @@
 //Code by Micah Vranyes and Alben Augestine
-using namespace std;
 
 #include <iostream>
 #include <fstream>
 #include <vector>
-#include "Gate.h"
-#include "Wire.h"
-#include "Event.h"
 #include <sstream>
 #include <queue>
 #include <map>
 #include <string>
+
+using namespace std;
+
+#include "Gate.h"
+#include "Wire.h"
+#include "Event.h"
 #define X 2
 
 Gate::Gate(GateType type, int delay, Wire *in1, Wire *in2, Wire *outwire) {
@@ -101,13 +103,13 @@ int Gate::Nor(int a, int b){
 }
 
 class Circuit {
-
     private:
     //vector<Gate*> gateVector;
     vector<Wire*> wireVector;//Renamed wire vector instead of array because it's a vector
     priority_queue<Event> events;//Priority queue uses < operator in event.h
     map<string, int> inputs;//Using string to make code more general
     map<string, int> outputs;
+    GateType hardCodeGateSolve(string gateString);
     string circuitName;
     string vectorName;
 

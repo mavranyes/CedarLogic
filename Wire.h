@@ -1,10 +1,11 @@
 //Code by Micah Vranyes and Alben Augestine
-using namespace std;
-
 class Gate;
 
 #include <string>
 #include <vector>
+
+using namespace std;
+
 
 class Wire {
     public:

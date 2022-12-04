@@ -1,11 +1,12 @@
 //Code by Micah Vranyes and Alben Augestine
+#include <iostream>
+
 using namespace std;
 
 #include "Wire.h"
 #include "Gate.h"
-#include <iostream>
 
-Wire::Wire(int inVal = 0, string inName = "", int inIndex = 0) {
+Wire::Wire(int inVal, string inName, int inIndex) {
     value = inVal;
     name = inName;
     index = inIndex;

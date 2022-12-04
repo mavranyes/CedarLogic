@@ -1,7 +1,7 @@
 //Code by Micah Vranyes and Alben Augestine
-using namespace std;
-
 #include <string>
+
+using namespace std;
 
 enum GateType {NOT, AND, OR, XOR, NAND, NOR, XNOR};
 
