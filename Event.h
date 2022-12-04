@@ -16,7 +16,7 @@ class Event {
             return this->time;
         }
         int getValue() {
-            this->value;
+            return this->value;
         }
         
     private:
