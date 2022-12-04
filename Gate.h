@@ -13,7 +13,7 @@ class Gate {
         int getDelay()const;
         Wire* getInput(int num)const;
         Wire* getOutput()const;
-        void evaluate();//Runs gate logic
+        int evaluate();//Runs gate logic
     private:
         int And(int, int);
         int Or(int, int);

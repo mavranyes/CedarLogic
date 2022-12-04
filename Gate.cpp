@@ -21,7 +21,7 @@ Gate::Gate(GateType type, int delay, Wire *in1, Wire *in2, Wire *outwire) {
     this->outwire = outwire;
 }
 
-void Gate::evaluate() {//This needs to be constant but it doesn't work if it is
+int Gate::evaluate() {//This needs to be constant but it doesn't work if it is
     int a=in1->getValue();
     int b = -1;
     int out = -1;
@@ -51,7 +51,7 @@ void Gate::evaluate() {//This needs to be constant but it doesn't work if it is
             out = Nor(a, b);
             break;
     }
-    outwire->setValue(out);
+    return out;
 }
 
 int Gate::And(int a, int b){
@@ -100,27 +100,23 @@ int Gate::Nor(int a, int b){
     return Not(Or(a, b));
 }
 
-/*
-class EventCompare {
-    bool operator() (const Event* lhs, const Event* rhs) {
-        return (lhs->time < rhs->time);
-    }
-};*/
-
 class Circuit {
 
     private:
-    vector<Gate*> gateVector;
+    //vector<Gate*> gateVector;
     vector<Wire*> wireVector;//Renamed wire vector instead of array because it's a vector
     priority_queue<Event> events;//Priority queue uses < operator in event.h
     map<string, int> inputs;//Using string to make code more general
     map<string, int> outputs;
+    string circuitName;
+    string vectorName;
 
     public:
     Circuit(ifstream &cfin, ifstream &vfin) {
         string rawline;
         int Num;
-
+        getline(cfin, rawline, '\n');
+        circuitName = rawline.substr(rawline.find(" ")+1);
         while (!cfin.eof()) {
 
             getline(cfin, rawline);
@@ -131,6 +127,7 @@ class Circuit {
             if (op == "INPUT" || op == "OUTPUT") {
                 string s;
                 int idx;
+                line >> s >> idx;
                 if (op == "INPUT") {
                     inputs.insert(pair<string, int>(s, idx));//make_pair wasn't working so I formatted it differently 
                 } else {
@@ -146,21 +143,19 @@ class Circuit {
             }
             else {
                 //Pt. 1
-                string GateT;
-                line >> GateT;
-                GateType gateType = hardCodeGateSolve(GateT);//Returns gate type as int
+                GateType gateType = hardCodeGateSolve(op);//Returns gate type as int
                 //Pt. 2
                 string inDelay;
+                line >> inDelay;//This should automatically parse the delay
                 int delay = 0;
-                line >> delay;//This should automatically parse the delay
-            
+
                 //Convert string to unsigned int 
                 // Remove the ns and store the int value in delay
-                //delay= stoul(inDelay.substr(0, (inDelay.length() - 2)));
+                delay = stoi(inDelay.substr(0, (inDelay.length() - 2)));
 
                 //Pt. 3-5
                 int idx;
-                Wire* wireArray[3] = {nullptr};
+                //Wire* wireArray[3] = {nullptr};
                 for (int i = 0; i < 3; i++){
                     line >> idx;
                     if (idx >= wireVector.size() || wireVector.at(idx) == nullptr) {
@@ -168,25 +163,52 @@ class Circuit {
                             wireVector.resize(idx+1, nullptr);
                         }
                         wireVector.at(idx) = new Wire(0,"",idx);
-                        wireArray[i] = wireVector.at(idx);
+                        //wireArray[i] = wireVector.at(idx);
                     }
-                    if ((gateType == NOT) && (i == 2)) {
+                    if ((gateType == NOT) && (i == 1)) {
                         break;
                     }
                 }
 
                 //Takes all pieces and adds to vector here
-                gateVector.push_back(new Gate(gateType, delay, wireArray[0], wireArray[1], wireArray[2]));
+                //gateVector.push_back(new Gate(gateType, delay, wireArray[0], wireArray[1], wireArray[2]));
             }
         }
 
+        //Parsing vector file
+        getline(vfin, rawline, '\n');
+        vectorName = rawline.substr(rawline.find(" ")+1);
+        while (!vfin.eof()) {
+            getline(vfin, rawline);
+            istringstream line(rawline);
+            string op, s;
+            line >> op >> s;
+
+            Wire* wire = inputs[s];
+            int time = 0;
+            int val = 0;
+
+            line >> time >> val;
+            Event e(wire, time, value);
+            events.push(e);
+        }
     }
-    //Parsing vector file
-    /*
-    while (!vfin.eof()) {
 
+    void simulate() {
+        while(!events.empty()){
+            Event e = events.top();
+            events.pop();
+            e.wire->setValue(e.value);
 
-    }*/
+            for (Gate* g : e.getDrives()) {
+                int result= g->evaluate();
+                Wire* out= g->getOutput();
+                int newTime= e.time + getDelay();
+                Event e(wire, time, value);
+                events.push(e);
+            }
+        }
+    }
 };
 
 int main() {
