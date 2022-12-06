@@ -102,6 +102,28 @@ int Gate::Nor(int a, int b){
     return Not(Or(a, b));
 }
 
+int Gate::getDelay()const {
+    return delay;  
+}
+
+Wire* Gate::getInput(int num)const {
+    if (num == 1) {
+        return in1;
+    }
+    else {
+        if (num == 2) {
+            return in2;
+        }
+        else {
+            return nullptr;
+        }
+    }
+}
+
+Wire* Gate::getOutput()const {
+    return outwire;
+}
+
 class Circuit {
     private:
     //vector<Gate*> gateVector;
@@ -109,7 +131,8 @@ class Circuit {
     priority_queue<Event> events;//Priority queue uses < operator in event.h
     map<string, int> inputs;//Using string to make code more general
     map<string, int> outputs;
-    GateType hardCodeGateSolve(string gateString);
+    map<string, vector<pair<int,int>>> history;
+    GateType gateSolve(string gateString);
     string circuitName;
     string vectorName;
 
@@ -131,12 +154,11 @@ class Circuit {
                 int idx;
                 line >> s >> idx;
                 if (op == "INPUT") {
-                    inputs.insert(pair<string, int>(s, idx));//make_pair wasn't working so I formatted it differently 
+                    inputs.insert(pair<string, int>(s, idx));
                 } else {
                     outputs.insert(pair<string, int>(s, idx));
                 }
                 if (idx >= wireVector.size() || wireVector.at(idx) == nullptr) {
-                    //Wire* newWire = new Wire(); //Why not just add directly at the end?
                     if (idx >= wireVector.size()) {
                         wireVector.resize(idx+1, nullptr);
                     }
@@ -145,7 +167,7 @@ class Circuit {
             }
             else {
                 //Pt. 1
-                GateType gateType = hardCodeGateSolve(op);//Returns gate type as int
+                GateType gateType = gateSolve(op);//Returns gate type as int
                 //Pt. 2
                 string inDelay;
                 line >> inDelay;//This should automatically parse the delay
@@ -191,7 +213,7 @@ class Circuit {
             int val = 0;
 
             line >> time >> val;
-            Event e(wire, time, value);
+            Event e(wire, time, val);
             events.push(e);
         }
     }
@@ -202,13 +224,24 @@ class Circuit {
             events.pop();
             e.wire->setValue(e.value);
 
-            for (Gate* g : e.getDrives()) {
+            for (Gate* g : e.wire->getDrives()) {
                 int result= g->evaluate();
                 Wire* out= g->getOutput();
-                int newTime= e.time + getDelay();
-                Event e(wire, time, value);
+                int newTime = e.time + g->getDelay();
+                Event e(g->getOutput(), newTime, e.value);
                 events.push(e);
             }
+        }
+    }
+
+    void print() {
+        string wireName;
+        vector<pair<int,int>> timeValues;
+        int i = 0;
+        int time = 0;
+        while (i < time) {
+            time = 0;
+            history.insert(wireName, timeValues);//It doesn't like the data format
         }
     }
 };
@@ -220,7 +253,7 @@ int main() {
     // (4) Print out
 };
 
-GateType hardCodeGateSolve(string gateString) {
+GateType Circuit::gateSolve(string gateString) {//Determines what enum the string coresponds to
     if (gateString == "NOT") {
         return NOT;
     }
@@ -248,9 +281,6 @@ GateType hardCodeGateSolve(string gateString) {
                             if (gateString == "XNOR") {
                                 return XNOR;
                             }
-                            else {
-                                return AND;//This is dumb
-                            }
                         }
                     }
                 }
@@ -258,15 +288,3 @@ GateType hardCodeGateSolve(string gateString) {
         }
     }
 }
-
-/*void createWire(string name, int value, vector<Wire *> wires) {
-    if (wires.size() >= stoi(name)) {//Checks if vector long enough
-        if (wires.at(stoi(name)) == nullptr) {
-            wires.at(stoi(name)) == new Wire(value, name ,0);
-        }
-    }
-    else {
-        wires.resize(stoi(name));
-        wires.at(stoi(name)) == new Wire(value, name ,0);
-    }
-}*/
