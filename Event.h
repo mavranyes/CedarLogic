@@ -8,9 +8,13 @@ struct Event {
         Wire* wire;
         int time;
         int value;
-        Event (Wire* w, int t, int v) : wire(w), time(t), value(v) {}
+        int id;
+        Event (Wire* w, int t, int v, int i) : wire(w), time(t), value(v), id(i) {}
 
         friend bool operator<(const Event &lhs, const Event &rhs) {
+            if (lhs.time == rhs.time) {
+                return lhs.id > rhs.id;
+            }
             return lhs.time > rhs.time;
         }
 };

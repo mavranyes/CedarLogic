@@ -12,8 +12,12 @@ Wire::Wire(int inVal, string inName, int inIndex) {
     index = inIndex;
 }
 
+void Wire::addDrive(Gate* drive) {  // BCS
+    drives.push_back(drive);        // BCS
+}                                   // BCS
+
 void Wire::setValue(int val) {
-    this->value = val;
+    value = val;
 }
 
 void Wire::setHistory(vector<string> his) {

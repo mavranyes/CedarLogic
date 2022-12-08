@@ -25,7 +25,7 @@ Gate::Gate(GateType type, int delay, Wire *in1, Wire *in2, Wire *outwire) {
 }
 
 int Gate::evaluate() {//This needs to be constant but it doesn't work if it is
-    int a=in1->getValue();
+    int a = in1->getValue();
     int b = -1;
     int out = -1;
     if (in2 != nullptr) {
@@ -114,8 +114,7 @@ Wire* Gate::getInput(int num)const {
     else {
         if (num == 2) {
             return in2;
-        }
-        else {
+        } else {
             return nullptr;
         }
     }
@@ -124,6 +123,18 @@ Wire* Gate::getInput(int num)const {
 Wire* Gate::getOutput()const {
     return outwire;
 }
+
+void Gate::setInput(int idx, Wire* in) {    // BCS
+    if (idx == 1) {                         // BCS
+        in1 = in;                           // BCS
+    } else {                                // BCS
+        in2 = in;                           // BCS
+    }                                       // BCS
+}                                           // BCS
+
+void Gate::setOutput(Wire* out) {           // BCS
+    outwire = out;                          // BCS
+}                                           // BCS
 
 class Circuit {
     private:
@@ -137,19 +148,23 @@ class Circuit {
     string circuitName;
     string vectorName;
     int endTime;
+    int eventID; // ADDED BY BCS
 
     public:
     Circuit(ifstream &cfin, ifstream &vfin) {
         string rawline;
-        int Num;
         getline(cfin, rawline, '\n');
         circuitName = rawline.substr(rawline.find(" ")+1);
+        string cName = circuitName;
+        eventID = 0;    // BCS
         while (!cfin.eof()) {
-
             getline(cfin, rawline);
             istringstream line(rawline);
             string op;
             line >> op;
+            if (op == "") { // BCS
+                break;      // BCS
+            }               // BCS
 
             if (op == "INPUT" || op == "OUTPUT") {
                 string s;
@@ -167,34 +182,48 @@ class Circuit {
                     }
                     wireVector.at(idx) = new Wire(0,s,idx);
                 }
-            }
-            else {
+            } else {
                 //Pt. 1
                 GateType gateType = gateSolve(op);//Returns gate type as int
                 //Pt. 2
-                string inDelay;
-                line >> inDelay;//This should automatically parse the delay
                 int delay = 0;
 
                 //Convert string to unsigned int 
                 // Remove the ns and store the int value in delay
-                delay = stoi(inDelay.substr(0, (inDelay.length() - 2)));
+                //delay = stoi(inDelay.substr(0, (inDelay.length() - 2)));
+                string ns;
+                line >> delay >> ns;
 
                 //Pt. 3-5
                 int idx;
                 //Wire* wireArray[3] = {nullptr};
+                Gate* g = new Gate(gateType, delay, nullptr, nullptr, nullptr); // BCS
+                // NOTE: YOU WERENT CREATING A NEW GATE AT ALL
                 for (int i = 0; i < 3; i++){
                     line >> idx;
                     if (idx >= wireVector.size() || wireVector.at(idx) == nullptr) {
                         if (idx >= wireVector.size()) {
                             wireVector.resize(idx+1, nullptr);
                         }
-                        wireVector.at(idx) = new Wire(0,"",idx);
+                        wireVector[idx] = new Wire(0,"",idx);
                         //wireArray[i] = wireVector.at(idx);
                     }
-                    if ((gateType == NOT) && (i == 1)) {
-                        break;
-                    }
+                    //Below connects the wires to the gate
+                    if (i == 0) {                           // BCS
+                        g->setInput(1, wireVector[idx]);    // BCS
+                        wireVector[idx]->addDrive(g);       // BCS
+                    } else if (i == 1) {                    // BCS
+                        if (gateType == NOT) {              // BCS
+                            g->setOutput(wireVector[idx]);  // BCS
+                            break;                          // BCS
+                        }                                   // BCS
+                        else {                              // BCS 
+                            g->setInput(2, wireVector[idx]);// BCS
+                            wireVector[idx]->addDrive(g);   // BCS
+                        }                                   // BCS
+                    } else {                                // BCS
+                        g->setOutput(wireVector[idx]);      // BCS
+                    }                                       // BCS
                 }
 
                 //Takes all pieces and adds to vector here
@@ -210,13 +239,16 @@ class Circuit {
             istringstream line(rawline);
             string op, s;
             line >> op >> s;
+            if (s == "") {  // BCS
+                break;      // BCS
+            }               // BCS
 
-            Wire* wire = wireVector[inputs[s]+1];
+            Wire* wire = wireVector[inputs[s]]; // BCS
             int time = 0;
             int val = 0;
 
             line >> time >> val;
-            Event e(wire, time, val);
+            Event e(wire, time, val, eventID++);
             events.push(e);
         }
     }
@@ -225,7 +257,6 @@ class Circuit {
         endTime = 0;
         while(!events.empty()){
             Event e = events.top();
-            events.pop();
             e.wire->setValue(e.value);
             if (e.time > endTime) {
                 endTime = e.time;
@@ -236,12 +267,13 @@ class Circuit {
             }
 
             for (Gate* g : e.wire->getDrives()) {
-                int result= g->evaluate();
-                Wire* out= g->getOutput();
+                int result = g->evaluate();
+                Wire* out = g->getOutput();
                 int newTime = e.time + g->getDelay();
-                Event nextE(g->getOutput(), newTime, e.value);
+                Event nextE(g->getOutput(), newTime, e.value, eventID++);
                 events.push(nextE);
             }
+            events.pop();
         }
     }
 
@@ -255,7 +287,7 @@ class Circuit {
                 int changeValue = iopadChanges[i].second;
                 int diffTime;
                 if (i + 1 == iopadChanges.size()) {
-                    diffTime = endTime - changeTime + 1;
+                    diffTime = endTime - changeTime + 1;    // BCS
                 }
                 else {
                     diffTime = iopadChanges[i + 1].first - changeTime;
@@ -289,7 +321,7 @@ int main(int argc, char* argv[]) {
     string circuitFile = baseFile + ".txt";
     string vectorFile = baseFile + "_v.txt";
     ifstream cfin(circuitFile);
-    ifstream vfin(circuitFile);
+    ifstream vfin(vectorFile);  // BCS
     Circuit c(cfin, vfin);
     c.simulate();
     c.print();

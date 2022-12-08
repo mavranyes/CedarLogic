@@ -11,6 +11,8 @@ class Gate {
     public:
         Gate (GateType type, int delay, Wire *in1, Wire *in2, Wire *outwire);
         int getDelay()const;
+        void setInput(int idx, Wire* in);   // BCS
+        void setOutput(Wire* out);          // BCS
         Wire* getInput(int num)const;
         Wire* getOutput()const;
         int evaluate();//Runs gate logic

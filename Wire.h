@@ -13,6 +13,7 @@ class Wire {
         void setValue(int val);
         void setHistory(vector<string> his);
         void setDrives(vector<Gate *> drivs);
+        void addDrive(Gate* drive); // BCS
         int getValue()const;
         string getName()const;
         vector<Gate *> getDrives()const;
