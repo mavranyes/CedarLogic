@@ -239,8 +239,8 @@ class Circuit {
                 int result= g->evaluate();
                 Wire* out= g->getOutput();
                 int newTime = e.time + g->getDelay();
-                Event e(g->getOutput(), newTime, e.value);
-                events.push(e);
+                Event nextE(g->getOutput(), newTime, e.value);
+                events.push(nextE);
             }
         }
     }
@@ -280,7 +280,19 @@ class Circuit {
     }
 };
 
-int main() {
+int main(int argc, char* argv[]) {
+    if (argc != 2) {
+        cout << "Unexpected number of arguments. Expected: base name of circuit description files.\n";
+        return 1;
+    }
+    string baseFile = argv[1];
+    string circuitFile = baseFile + ".txt";
+    string vectorFile = baseFile + "_v.txt";
+    ifstream cfin(circuitFile);
+    ifstream vfin(circuitFile);
+    Circuit c(cfin, vfin);
+    c.simulate();
+    c.print();
     // (1) Parse Gates and Wires
     // (2) Parse starting inputs
     // (3) Simulate
