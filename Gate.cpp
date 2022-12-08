@@ -7,6 +7,7 @@
 #include <queue>
 #include <map>
 #include <string>
+#include <utility>
 
 using namespace std;
 
@@ -135,6 +136,7 @@ class Circuit {
     GateType gateSolve(string gateString);
     string circuitName;
     string vectorName;
+    int endTime;
 
     public:
     Circuit(ifstream &cfin, ifstream &vfin) {
@@ -153,6 +155,7 @@ class Circuit {
                 string s;
                 int idx;
                 line >> s >> idx;
+                history.insert({ s, {{0, X}} });
                 if (op == "INPUT") {
                     inputs.insert(pair<string, int>(s, idx));
                 } else {
@@ -208,7 +211,7 @@ class Circuit {
             string op, s;
             line >> op >> s;
 
-            Wire* wire = inputs[s];
+            Wire* wire = wireVector[inputs[s]+1];
             int time = 0;
             int val = 0;
 
@@ -219,72 +222,93 @@ class Circuit {
     }
 
     void simulate() {
+        endTime = 0;
         while(!events.empty()){
             Event e = events.top();
             events.pop();
             e.wire->setValue(e.value);
+            if (e.time > endTime) {
+                endTime = e.time;
+            }
+            string iopadName = e.wire->getName();
+            if (iopadName != "") {
+                history[iopadName].push_back({ e.time, e.value });
+            }
 
             for (Gate* g : e.wire->getDrives()) {
                 int result= g->evaluate();
                 Wire* out= g->getOutput();
                 int newTime = e.time + g->getDelay();
-                Event e(g->getOutput(), newTime, e.value);
-                events.push(e);
+                Event nextE(g->getOutput(), newTime, e.value);
+                events.push(nextE);
             }
         }
     }
 
     void print() {
-        string wireName;
-        vector<pair<int,int>> timeValues;
-        int i = 0;
-        int time = 0;
-        while (i < time) {
-            time = 0;
-            history.insert(wireName, timeValues);//It doesn't like the data format
+        for (auto iopad : history) { // iopad = {"A", vector of pairs}
+            string iopadName = iopad.first;
+            vector<pair<int, int>> iopadChanges = iopad.second;
+            cout << iopadName << " ";
+            for (int i = 0; i < iopadChanges.size(); ++i) {
+                int changeTime = iopadChanges[i].first;
+                int changeValue = iopadChanges[i].second;
+                int diffTime;
+                if (i + 1 == iopadChanges.size()) {
+                    diffTime = endTime - changeTime + 1;
+                }
+                else {
+                    diffTime = iopadChanges[i + 1].first - changeTime;
+                }
+                char c;
+                switch (changeValue) {
+                case 0:
+                    c = '_';
+                    break;
+                case 1:
+                    c = '-';
+                    break;
+                case X:
+                    c = '/';
+                    break;
+                }
+                string disp(diffTime, c);
+                cout << disp;
+            }
+            cout << endl;
         }
     }
 };
 
-int main() {
+int main(int argc, char* argv[]) {
+    if (argc != 2) {
+        cout << "Unexpected number of arguments. Expected: base name of circuit description files.\n";
+        return 1;
+    }
+    string baseFile = argv[1];
+    string circuitFile = baseFile + ".txt";
+    string vectorFile = baseFile + "_v.txt";
+    ifstream cfin(circuitFile);
+    ifstream vfin(circuitFile);
+    Circuit c(cfin, vfin);
+    c.simulate();
+    c.print();
     // (1) Parse Gates and Wires
     // (2) Parse starting inputs
     // (3) Simulate
     // (4) Print out
+}
+
+map<string, GateType> gateTypes{
+    {"NOT", NOT},
+    {"AND", AND},
+    {"OR", OR},
+    {"XOR", XOR},
+    {"NAND", NAND},
+    {"NOR", NOR},
+    {"XNOR", XNOR},
 };
 
 GateType Circuit::gateSolve(string gateString) {//Determines what enum the string coresponds to
-    if (gateString == "NOT") {
-        return NOT;
-    }
-    else {
-        if (gateString == "AND") {
-            return AND;
-        }
-        else{
-            if (gateString == "OR") {
-                return OR;
-            }
-            else {
-                if (gateString == "XOR") {
-                    return XOR;
-                }
-                else {
-                    if (gateString == "NAND") {
-                        return NAND;
-                    }
-                    else {
-                        if (gateString == "NOR") {
-                            return NOR;
-                        }
-                        else {
-                            if (gateString == "XNOR") {
-                                return XNOR;
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
+    return gateTypes[gateString];
 }

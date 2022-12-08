@@ -14,7 +14,7 @@ class Wire {
         void setHistory(vector<string> his);
         void setDrives(vector<Gate *> drivs);
         int getValue()const;
-        int getName()const;
+        string getName()const;
         vector<Gate *> getDrives()const;
         int getIndex()const;
         vector<string> getHistory()const;
