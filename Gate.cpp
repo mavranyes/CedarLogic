@@ -211,7 +211,7 @@ class Circuit {
             string op, s;
             line >> op >> s;
 
-            Wire* wire = wireVector[inputs[s]];
+            Wire* wire = wireVector[inputs[s]+1];
             int time = 0;
             int val = 0;
 
