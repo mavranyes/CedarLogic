@@ -11,6 +11,6 @@ struct Event {
         Event (Wire* w, int t, int v) : wire(w), time(t), value(v) {}
 
         friend bool operator<(const Event &lhs, const Event &rhs) {
-            return lhs.time < rhs.time;
+            return lhs.time > rhs.time;
         }
 };

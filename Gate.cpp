@@ -155,7 +155,7 @@ class Circuit {
                 string s;
                 int idx;
                 line >> s >> idx;
-                history.insert({ s, {} });
+                history.insert({ s, {{0, X}} });
                 if (op == "INPUT") {
                     inputs.insert(pair<string, int>(s, idx));
                 } else {
