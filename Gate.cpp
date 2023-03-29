@@ -1,4 +1,7 @@
-//Code by Micah Vranyes and Alben Augestine
+// Author: Micah Vranyes and Alben Augestine 
+// Purpose: This is the implementation for the Gate class and the defintion and implemtation
+// for the circuit class 
+// Date: 12/08/2022
 
 #include <iostream>
 #include <fstream>
@@ -16,7 +19,7 @@ using namespace std;
 #include "Event.h"
 #define X 2
 
-Gate::Gate(GateType type, int delay, Wire *in1, Wire *in2, Wire *outwire) {
+Gate::Gate(GateType type, int delay, Wire* in1, Wire* in2, Wire* outwire) {
     this->type = type;
     this->delay = delay;
     this->in1 = in1;
@@ -24,64 +27,102 @@ Gate::Gate(GateType type, int delay, Wire *in1, Wire *in2, Wire *outwire) {
     this->outwire = outwire;
 }
 
-int Gate::evaluate() {//This needs to be constant but it doesn't work if it is
-    int a = in1->getValue();
-    int b = -1;
-    int out = -1;
-    if (in2 != nullptr) {
-        b=in2->getValue();
+//Evaluates the gate output with wire change
+int Gate::evaluate(Wire* w, int val) {
+    int a = X;
+    int b = X;
+    int out = X;
+    if (w == in1) {
+        a = val;
+        if (in2 != nullptr) {
+            b = in2->getValue();
+        }
     }
-    switch(type){
-        case AND:
-            out = And(a, b);
-            break;
-        case NOT:
-            out = Not(a);
-            break;
-        case OR:
-            out = Or(a, b);
-            break;
-        case XNOR:
-            out = Xnor(a, b);
-            break;
-        case XOR:
-            out = Xor(a, b);
-            break;
-        case NAND:
-            out = Nand(a, b);
-            break;
-        case NOR:
-            out = Nor(a, b);
-            break;
+    else if (w == in2) {
+        b = val;
+        if (in1 != nullptr) {
+            a = in1->getValue();
+        }
+    }
+    else {
+        a = in1->getValue();
+        if (in2 != nullptr) {
+            b = in2->getValue();
+        }
+    }
+
+    out = distribute(a, b);
+    return out;
+}
+
+//Evaluates the gate output before the wire change
+int Gate::evaluate() {
+    int a = in1->getValue();
+    int b = X;
+    int out = X;
+    if (in2 != nullptr) {
+        b = in2->getValue();
+    }
+    out = distribute(a, b);
+    return out;
+}
+
+//Distribute determines which gate type the wire values feed into
+int Gate::distribute(int a, int b) {
+    int out = -1;
+    switch (type) {
+    case AND:
+        out = And(a, b);
+        break;
+    case NOT:
+        out = Not(a);
+        break;
+    case OR:
+        out = Or(a, b);
+        break;
+    case XNOR:
+        out = Xnor(a, b);
+        break;
+    case XOR:
+        out = Xor(a, b);
+        break;
+    case NAND:
+        out = Nand(a, b);
+        break;
+    case NOR:
+        out = Nor(a, b);
+        break;
     }
     return out;
 }
 
-int Gate::And(int a, int b){
-    if (a==0||b==0){
+//The gates below complete the logical function of their coresponding names
+
+int Gate::And(int a, int b) {
+    if (a == 0 || b == 0) {
         return 0;
     }
-    else if(a==X||b==X){
+    else if (a == X || b == X) {
         return X;
     }
     return 1;
 }
 
-int Gate::Or(int a, int b){
-    if (a==1||b==1){
+int Gate::Or(int a, int b) {
+    if (a == 1 || b == 1) {
         return 1;
     }
-    else if(a==X||b==X){
+    else if (a == X || b == X) {
         return X;
     }
     return 0;
 }
 
-int Gate::Not(int a){
-    if(a==X){
+int Gate::Not(int a) {
+    if (a == X) {
         return X;
     }
-    else if (a==0){
+    else if (a == 0) {
         return 1;
     }
     return 0;
@@ -91,20 +132,20 @@ int Gate::Xor(int a, int b) {
     return Or(And(Not(a), b), And(a, Not(b)));
 }
 
-int Gate::Nand(int a, int b){
+int Gate::Nand(int a, int b) {
     return Not(And(a, b));
 }
 
-int Gate::Xnor(int a, int b){
+int Gate::Xnor(int a, int b) {
     return Not(Xor(a, b));
 }
 
-int Gate::Nor(int a, int b){
+int Gate::Nor(int a, int b) {
     return Not(Or(a, b));
 }
 
 int Gate::getDelay()const {
-    return delay;  
+    return delay;
 }
 
 Wire* Gate::getInput(int num)const {
@@ -114,7 +155,8 @@ Wire* Gate::getInput(int num)const {
     else {
         if (num == 2) {
             return in2;
-        } else {
+        }
+        else {
             return nullptr;
         }
     }
@@ -124,155 +166,190 @@ Wire* Gate::getOutput()const {
     return outwire;
 }
 
-void Gate::setInput(int idx, Wire* in) {    // BCS
-    if (idx == 1) {                         // BCS
-        in1 = in;                           // BCS
-    } else {                                // BCS
-        in2 = in;                           // BCS
-    }                                       // BCS
-}                                           // BCS
+void Gate::setInput(int idx, Wire* in) {
+    if (idx == 1) {
+        in1 = in;
+    }
+    else {
+        in2 = in;
+    }
+}
 
-void Gate::setOutput(Wire* out) {           // BCS
-    outwire = out;                          // BCS
-}                                           // BCS
+void Gate::setOutput(Wire* out) {
+    outwire = out;
+}
+
 
 class Circuit {
-    private:
-    //vector<Gate*> gateVector;
-    vector<Wire*> wireVector;//Renamed wire vector instead of array because it's a vector
-    priority_queue<Event> events;//Priority queue uses < operator in event.h
-    map<string, int> inputs;//Using string to make code more general
+
+private:
+    
+    vector<Wire*> wireVector;
+    priority_queue<Event> events;
+    map<string, int> inputs;
     map<string, int> outputs;
-    map<string, vector<pair<int,int>>> history;
+    map<string, vector<pair<int, int>>> history;
     GateType gateSolve(string gateString);
     string circuitName;
     string vectorName;
     int endTime;
-    int eventID; // ADDED BY BCS
+    int eventID;
 
-    public:
-    Circuit(ifstream &cfin, ifstream &vfin) {
+public:
+
+    Circuit(ifstream& cfin, ifstream& vfin) {
+
         string rawline;
         getline(cfin, rawline, '\n');
-        circuitName = rawline.substr(rawline.find(" ")+1);
+        circuitName = rawline.substr(rawline.find(" ") + 1);
         string cName = circuitName;
-        eventID = 0;    // BCS
+        eventID = 0;
+
         while (!cfin.eof()) {
             getline(cfin, rawline);
             istringstream line(rawline);
             string op;
             line >> op;
-            if (op == "") { // BCS
-                break;      // BCS
-            }               // BCS
-
+            if (op == "") {
+                break;
+            }
+            //Creates wires
             if (op == "INPUT" || op == "OUTPUT") {
+
                 string s;
                 int idx;
                 line >> s >> idx;
                 history.insert({ s, {{0, X}} });
                 if (op == "INPUT") {
                     inputs.insert(pair<string, int>(s, idx));
-                } else {
+                }
+                else {
                     outputs.insert(pair<string, int>(s, idx));
                 }
+                //Checks if the wire exits and/or the vector contains enough room for the wire
                 if (idx >= wireVector.size() || wireVector.at(idx) == nullptr) {
                     if (idx >= wireVector.size()) {
-                        wireVector.resize(idx+1, nullptr);
+                        wireVector.resize(idx + 1, nullptr);
                     }
-                    wireVector.at(idx) = new Wire(0,s,idx);
+                    wireVector.at(idx) = new Wire(X, s, idx);
                 }
-            } else {
-                //Pt. 1
-                GateType gateType = gateSolve(op);//Returns gate type as int
-                //Pt. 2
+            }
+
+            else {
+                
+                //Returns gate type as int
+                GateType gateType = gateSolve(op);
                 int delay = 0;
 
                 //Convert string to unsigned int 
                 // Remove the ns and store the int value in delay
-                //delay = stoi(inDelay.substr(0, (inDelay.length() - 2)));
                 string ns;
                 line >> delay >> ns;
 
-                //Pt. 3-5
                 int idx;
-                //Wire* wireArray[3] = {nullptr};
-                Gate* g = new Gate(gateType, delay, nullptr, nullptr, nullptr); // BCS
-                // NOTE: YOU WERENT CREATING A NEW GATE AT ALL
-                for (int i = 0; i < 3; i++){
+                // Create new gate 
+                Gate* g = new Gate(gateType, delay, nullptr, nullptr, nullptr);
+                
+                //Change size of vector if greater number of wires are created. 
+                for (int i = 0; i < 3; i++) {
                     line >> idx;
                     if (idx >= wireVector.size() || wireVector.at(idx) == nullptr) {
                         if (idx >= wireVector.size()) {
-                            wireVector.resize(idx+1, nullptr);
+                            wireVector.resize(idx + 1, nullptr);
                         }
-                        wireVector[idx] = new Wire(0,"",idx);
-                        //wireArray[i] = wireVector.at(idx);
+                        wireVector[idx] = new Wire(X, "", idx);
                     }
-                    //Below connects the wires to the gate
-                    if (i == 0) {                           // BCS
-                        g->setInput(1, wireVector[idx]);    // BCS
-                        wireVector[idx]->addDrive(g);       // BCS
-                    } else if (i == 1) {                    // BCS
-                        if (gateType == NOT) {              // BCS
-                            g->setOutput(wireVector[idx]);  // BCS
-                            break;                          // BCS
-                        }                                   // BCS
-                        else {                              // BCS 
-                            g->setInput(2, wireVector[idx]);// BCS
-                            wireVector[idx]->addDrive(g);   // BCS
-                        }                                   // BCS
-                    } else {                                // BCS
-                        g->setOutput(wireVector[idx]);      // BCS
-                    }                                       // BCS
-                }
 
-                //Takes all pieces and adds to vector here
-                //gateVector.push_back(new Gate(gateType, delay, wireArray[0], wireArray[1], wireArray[2]));
+                    //Connects the wires to the gate
+                    if (i == 0) {
+                        g->setInput(1, wireVector[idx]);
+                        wireVector[idx]->addDrive(g);
+                    }
+                    else if (i == 1) {
+                        if (gateType == NOT) {
+                            g->setOutput(wireVector[idx]);
+                            break;
+                        }
+                        else {
+                            g->setInput(2, wireVector[idx]);
+                            wireVector[idx]->addDrive(g);
+                        }
+                    }
+                    else {
+                        g->setOutput(wireVector[idx]);
+                    }
+                }
             }
         }
 
-        //Parsing vector file
+        //This is the parsing of the vector file
         getline(vfin, rawline, '\n');
-        vectorName = rawline.substr(rawline.find(" ")+1);
+        vectorName = rawline.substr(rawline.find(" ") + 1);
+
         while (!vfin.eof()) {
+            //Read input 
             getline(vfin, rawline);
             istringstream line(rawline);
             string op, s;
             line >> op >> s;
-            if (s == "") {  // BCS
-                break;      // BCS
-            }               // BCS
+            if (s == "") {
+                break;
+            }
 
-            Wire* wire = wireVector[inputs[s]]; // BCS
+            Wire* wire = wireVector[inputs[s]];
             int time = 0;
+            char valChar = 'X';
             int val = 0;
-
-            line >> time >> val;
+            
+            // Reads in char and checks and assigns the correct integer 
+            // for the represented charcter
+            line >> time >> valChar;
+            if (valChar == 'X') {
+                val = 2;
+            }
+            else if (valChar == '1') {
+                val = 1;
+            }
+            else {
+                val = 0;
+            }
             Event e(wire, time, val, eventID++);
             events.push(e);
         }
+
     }
 
+    // Pushes into pririty que and evlauvtes the logic 
     void simulate() {
         endTime = 0;
-        while(!events.empty()){
+        while (!events.empty() && endTime < 60) {
             Event e = events.top();
-            e.wire->setValue(e.value);
+            //Updates endTime which is used in print function
             if (e.time > endTime) {
                 endTime = e.time;
             }
+
+            //Adds an event to history used in print function
             string iopadName = e.wire->getName();
             if (iopadName != "") {
                 history[iopadName].push_back({ e.time, e.value });
             }
 
+            //Loops through for every gate driven by this wire
             for (Gate* g : e.wire->getDrives()) {
-                int result = g->evaluate();
-                Wire* out = g->getOutput();
-                int newTime = e.time + g->getDelay();
-                Event nextE(g->getOutput(), newTime, e.value, eventID++);
-                events.push(nextE);
+
+                int oldResult = g->evaluate();
+
+                int result = g->evaluate(e.wire, e.value);
+                //Compares previous circuit output to new circuit output
+                if (result != oldResult) {
+                    int newTime = e.time + g->getDelay();
+                    Event nextE(g->getOutput(), newTime, result, eventID++);
+                    events.push(nextE);
+                }
             }
+            //Updates wire value then deletes event
+            e.wire->setValue(e.value);
             events.pop();
         }
     }
@@ -282,16 +359,19 @@ class Circuit {
             string iopadName = iopad.first;
             vector<pair<int, int>> iopadChanges = iopad.second;
             cout << iopadName << " ";
+            //Loops through all wire histories
             for (int i = 0; i < iopadChanges.size(); ++i) {
                 int changeTime = iopadChanges[i].first;
                 int changeValue = iopadChanges[i].second;
                 int diffTime;
+                //Calculates diffTime depending on if it reaches the end
                 if (i + 1 == iopadChanges.size()) {
-                    diffTime = endTime - changeTime + 1;    // BCS
+                    diffTime = endTime - changeTime + 1;
                 }
                 else {
                     diffTime = iopadChanges[i + 1].first - changeTime;
                 }
+                //Translates int to char and outputs for diffTime
                 char c;
                 switch (changeValue) {
                 case 0:
@@ -301,7 +381,7 @@ class Circuit {
                     c = '-';
                     break;
                 case X:
-                    c = '/';
+                    c = 'X';
                     break;
                 }
                 string disp(diffTime, c);
@@ -313,22 +393,24 @@ class Circuit {
 };
 
 int main(int argc, char* argv[]) {
-    if (argc != 2) {
-        cout << "Unexpected number of arguments. Expected: base name of circuit description files.\n";
-        return 1;
-    }
-    string baseFile = argv[1];
+
+    cout << "Enter File: ";
+    string baseFile;
+    cin >> baseFile;
+    //string baseFile = argv[1];
     string circuitFile = baseFile + ".txt";
     string vectorFile = baseFile + "_v.txt";
-    ifstream cfin(circuitFile);
-    ifstream vfin(vectorFile);  // BCS
-    Circuit c(cfin, vfin);
-    c.simulate();
-    c.print();
+    ifstream cfin;
+    ifstream vfin;
+    cfin.open(circuitFile.c_str());
+    vfin.open(vectorFile.c_str());
     // (1) Parse Gates and Wires
     // (2) Parse starting inputs
+    Circuit c(cfin, vfin);
     // (3) Simulate
+    c.simulate();
     // (4) Print out
+    c.print();
 }
 
 map<string, GateType> gateTypes{
@@ -341,6 +423,7 @@ map<string, GateType> gateTypes{
     {"XNOR", XNOR},
 };
 
-GateType Circuit::gateSolve(string gateString) {//Determines what enum the string coresponds to
+//Determines what enum the string coresponds to
+GateType Circuit::gateSolve(string gateString) {
     return gateTypes[gateString];
 }

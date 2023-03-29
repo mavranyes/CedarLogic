@@ -1,4 +1,7 @@
-//Code by Micah Vranyes and Alben Augestine
+// Author: Micah Vranyes and Alben Augestine 
+// Purpose: This is the .h file for event
+// Date: 12/08/2022
+
 using namespace std;
 
 class Wire;

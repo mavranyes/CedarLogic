@@ -1,4 +1,8 @@
-//Code by Micah Vranyes and Alben Augestine
+// Author: Micah Vranyes and Alben Augestine 
+// Purpose: This is the implementation for the Wire class 
+// Date: 12/08/2022
+
+
 #include <iostream>
 
 using namespace std;
@@ -12,10 +16,9 @@ Wire::Wire(int inVal, string inName, int inIndex) {
     index = inIndex;
 }
 
-void Wire::addDrive(Gate* drive) {  // BCS
-    drives.push_back(drive);        // BCS
-}                                   // BCS
-
+void Wire::addDrive(Gate* drive) {  
+    drives.push_back(drive);       
+}                                   
 void Wire::setValue(int val) {
     value = val;
 }
@@ -52,8 +55,8 @@ string Wire::getName() const {
     return name;
 }
 
-void Wire::printHistory() { //Needs to be const
-    for (vector<string>::iterator i = history.begin(); i != history.end(); ++i) {//Not able to convert from constant to non
+void Wire::printHistory() { 
+    for (vector<string>::iterator i = history.begin(); i != history.end(); ++i) {
         cout << *i << endl;
     }
 }

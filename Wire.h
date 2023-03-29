@@ -1,4 +1,7 @@
-//Code by Micah Vranyes and Alben Augestine
+// Author: Micah Vranyes and Alben Augestine 
+// Purpose: This is the idefintion for the wire class
+// Date: 12/08/2022
+
 class Gate;
 
 #include <string>
@@ -13,7 +16,7 @@ class Wire {
         void setValue(int val);
         void setHistory(vector<string> his);
         void setDrives(vector<Gate *> drivs);
-        void addDrive(Gate* drive); // BCS
+        void addDrive(Gate* drive); 
         int getValue()const;
         string getName()const;
         vector<Gate *> getDrives()const;
